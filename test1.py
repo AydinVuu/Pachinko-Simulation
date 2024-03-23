@@ -123,6 +123,7 @@ for i in range(1, NUM_BALLS):
 aiming = False
 aim_line_length = 100
 aim_line_angle = 0
+cue_ball_moving = False
 
 # Game loop
 clock = pygame.time.Clock()
@@ -131,15 +132,17 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        elif event.type == pygame.MOUSEBUTTONDOWN and not aiming:
+        elif event.type == pygame.MOUSEBUTTONDOWN and not aiming and not cue_ball_moving:
             cue_start = pygame.mouse.get_pos()
             aiming = True
-        elif event.type == pygame.MOUSEBUTTONUP and aiming:
+        elif event.type == pygame.MOUSEBUTTONUP and aiming and not cue_ball_moving:
             cue_end = pygame.mouse.get_pos()
             cue_dir = pygame.math.Vector2(cue_end) - pygame.math.Vector2(cue_start)
             cue_dir.normalize_ip()
             cue_ball.velocity = [-cue_dir.x * 6, -cue_dir.y * 6]
             aiming = False
+
+    cue_ball_moving = any(math.sqrt(ball.velocity[0]**2 + ball.velocity[1]**2) > SPEED_THRESHOLD for ball in balls)
 
     # Update balls
     for ball in balls:
