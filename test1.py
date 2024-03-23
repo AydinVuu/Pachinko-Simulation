@@ -28,7 +28,7 @@ FPS = 60
 FRICTION = 0.99
 SPEED_THRESHOLD = 0.5
 POCKET_RADIUS = 30
-COR = 0.8  # Coefficient of restitution
+COR = 0.7  # Coefficient of restitution
 
 # Screen setup
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -50,6 +50,15 @@ class Ball:
         self.y += self.velocity[1]
         self.velocity[0] *= FRICTION
         self.velocity[1] *= FRICTION
+
+        # Apply speed limit
+        speed_limit = 20  # Adjust as needed
+        speed = math.sqrt(self.velocity[0]**2 + self.velocity[1]**2)
+        if speed > speed_limit:
+            factor = speed_limit / speed
+            self.velocity[0] *= factor
+            self.velocity[1] *= factor
+
 
         # Bounce off walls
         if self.x - BALL_RADIUS < TABLE_POS[0]:
@@ -74,6 +83,28 @@ class Ball:
 
     def pocketed(self):
         return self.x < TABLE_POS[0] or self.x > TABLE_POS[0] + TABLE_WIDTH or self.y < TABLE_POS[1] or self.y > TABLE_POS[1] + TABLE_HEIGHT
+
+# Handle collisions function
+def handle_collisions(balls):
+    for i in range(NUM_BALLS):
+        for j in range(i + 1, NUM_BALLS):
+            dx = balls[j].x - balls[i].x
+            dy = balls[j].y - balls[i].y
+            distance = math.sqrt(dx**2 + dy**2)
+            if distance < 2 * BALL_RADIUS:
+                angle = math.atan2(dy, dx)
+                overlap = 2 * BALL_RADIUS - distance
+                balls[i].x -= overlap * math.cos(angle)
+                balls[i].y -= overlap * math.sin(angle)
+                balls[j].x += overlap * math.cos(angle)
+                balls[j].y += overlap * math.sin(angle)
+                dvx = balls[j].velocity[0] - balls[i].velocity[0]
+                dvy = balls[j].velocity[1] - balls[i].velocity[1]
+                dot_product = dx * dvx + dy * dvy
+                balls[i].velocity[0] += overlap * dot_product * dx / distance**2 * COR
+                balls[i].velocity[1] += overlap * dot_product * dy / distance**2 * COR
+                balls[j].velocity[0] -= overlap * dot_product * dx / distance**2 * COR
+                balls[j].velocity[1] -= overlap * dot_product * dy / distance**2 * COR
 
 # Arrange balls
 start_x = TABLE_POS[0] + TABLE_WIDTH // 2
@@ -107,7 +138,7 @@ while running:
             cue_end = pygame.mouse.get_pos()
             cue_dir = pygame.math.Vector2(cue_end) - pygame.math.Vector2(cue_start)
             cue_dir.normalize_ip()
-            cue_ball.velocity = [-cue_dir.x * 5, -cue_dir.y * 5]
+            cue_ball.velocity = [-cue_dir.x * 6, -cue_dir.y * 6]
             aiming = False
 
     # Update balls
@@ -115,25 +146,7 @@ while running:
         ball.move()
 
     # Handle collisions
-    for i in range(NUM_BALLS):
-        for j in range(i + 1, NUM_BALLS):
-            dx = balls[j].x - balls[i].x
-            dy = balls[j].y - balls[i].y
-            distance = math.sqrt(dx**2 + dy**2)
-            if distance < 2 * BALL_RADIUS:
-                angle = math.atan2(dy, dx)
-                overlap = 2 * BALL_RADIUS - distance
-                balls[i].x -= overlap * math.cos(angle)
-                balls[i].y -= overlap * math.sin(angle)
-                balls[j].x += overlap * math.cos(angle)
-                balls[j].y += overlap * math.sin(angle)
-                dvx = balls[j].velocity[0] - balls[i].velocity[0]
-                dvy = balls[j].velocity[1] - balls[i].velocity[1]
-                dot_product = dx * dvx + dy * dvy
-                balls[i].velocity[0] += overlap * dot_product * dx / distance**2 * COR
-                balls[i].velocity[1] += overlap * dot_product * dy / distance**2 * COR
-                balls[j].velocity[0] -= overlap * dot_product * dx / distance**2 * COR
-                balls[j].velocity[1] -= overlap * dot_product * dy / distance**2 * COR
+    handle_collisions(balls)
 
     # Handle pocketing
     for ball in balls:
