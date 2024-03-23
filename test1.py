@@ -11,6 +11,7 @@ WIDTH, HEIGHT = 800, 600
 TABLE_WIDTH, TABLE_HEIGHT = 700, 500
 TABLE_COLOR = (0, 128, 0)
 TABLE_POS = (50, 50)
+BLACK_HOLE_RADIUS = 20
 BALL_RADIUS = 15
 NUM_BALLS = 6
 WHITE = (255, 255, 255)
@@ -22,7 +23,7 @@ YELLOW = (255, 255, 0)
 PURPLE = (128, 0, 128)
 ORANGE = (255, 165, 0)
 BALL_COLORS = [WHITE, BLACK, RED, BLUE, GREEN, YELLOW, PURPLE, ORANGE]
-FPS = 60
+FPS = 120
 
 # Physics constants
 FRICTION = 0.99
@@ -52,7 +53,7 @@ class Ball:
         self.velocity[1] *= FRICTION
 
         # Apply speed limit
-        speed_limit = 20  # Adjust as needed
+        speed_limit = 10  # Adjust as needed
         speed = math.sqrt(self.velocity[0]**2 + self.velocity[1]**2)
         if speed > speed_limit:
             factor = speed_limit / speed
@@ -83,6 +84,17 @@ class Ball:
 
     def pocketed(self):
         return self.x < TABLE_POS[0] or self.x > TABLE_POS[0] + TABLE_WIDTH or self.y < TABLE_POS[1] or self.y > TABLE_POS[1] + TABLE_HEIGHT
+
+class Pocket:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def draw(self):
+        pygame.draw.circle(screen, BLACK, (int(self.x), int(self.y)), BLACK_HOLE_RADIUS)
+
+    def pocketed(self, ball):
+        return math.sqrt((self.x - ball.x)**2 + (self.y - ball.y)**2) < BLACK_HOLE_RADIUS
 
 # Handle collisions function
 def handle_collisions(balls):
@@ -119,6 +131,15 @@ for i in range(1, NUM_BALLS):
         y = random.randint(TABLE_POS[1] + 2 * BALL_RADIUS, TABLE_POS[1] + TABLE_HEIGHT - 2 * BALL_RADIUS)
     balls.append(Ball(x, y, BALL_COLORS[i]))
 
+# Make pockets
+POCKETS = [Pocket(TABLE_POS[0], TABLE_POS[1]),  # Top-left pocket
+           Pocket(TABLE_POS[0] + TABLE_WIDTH // 2, TABLE_POS[1]),  # Top-center pocket
+           Pocket(TABLE_POS[0] + TABLE_WIDTH, TABLE_POS[1]),  # Top-right pocket
+           Pocket(TABLE_POS[0], TABLE_POS[1] + TABLE_HEIGHT),  # Bottom-left pocket
+           Pocket(TABLE_POS[0] + TABLE_WIDTH // 2, TABLE_POS[1] + TABLE_HEIGHT),  # Bottom-center pocket
+           Pocket(TABLE_POS[0] + TABLE_WIDTH, TABLE_POS[1] + TABLE_HEIGHT)]  # Bottom-right pocket
+
+
 # Aiming cue stick
 aiming = False
 aim_line_length = 100
@@ -153,14 +174,20 @@ while running:
 
     # Handle pocketing
     for ball in balls:
-        if ball.pocketed():
-            balls.remove(ball)
+        for pocket in POCKETS:
+            if pocket.pocketed(ball):
+                balls.remove(ball)
+                NUM_BALLS -= 1
+                break
 
     # Draw everything
     screen.fill(TABLE_COLOR)  # Table background
     pygame.draw.rect(screen, BLACK, (TABLE_POS[0], TABLE_POS[1], TABLE_WIDTH, TABLE_HEIGHT), 2)  # Table border
     for ball in balls:
         ball.draw()
+    for pocket in POCKETS:
+        pocket.draw()
+
     if aiming:
         cue_end = pygame.mouse.get_pos()
         pygame.draw.line(screen, WHITE, cue_start, cue_end, 2)
