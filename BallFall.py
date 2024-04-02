@@ -83,20 +83,28 @@ class bigBall:
 
 
 
-def Collision_detection(activeballs):
+def Collision_detection(activeballs, bigball, triangle):
     for i in range(activeballs.len()):
 
         #wall collision
-        if activeballs.x <= 0:
+        if (activeballs[i].x - radius) <= 0:
             #screen edge
-        elif activeballs.x >= 640:
+            activeballs[i].set_vel((-activeballs[i].vel[0],activeballs[i].vel[1]))
+        elif (activeballs[i].x + radius) >= 640:
             #other edge
+            activeballs[i].set_vel((-activeballs[i].vel[0],activeballs[i].vel[1]))
+            
 
         #object collision
         if activeballs[i].x == 1:
             #triangle collision
+            
         else:
             #ball collsions
+            disx = activeballs[i].x - bigBall.x
+            disy = activeballs[i].y - bigball.y
+            distance = math.sqrt(disx**2 + disy**2)
+            if distance < (radius + bigBall.radius):
 
         
 def make_ball(active):
