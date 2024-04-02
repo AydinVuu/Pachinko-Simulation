@@ -105,6 +105,16 @@ def Collision_detection(activeballs, bigball, triangle):
             disy = activeballs[i].y - bigball.y
             distance = math.sqrt(disx**2 + disy**2)
             if distance < (radius + bigBall.radius):
+                angle = math.atan2(disy, disx)
+                overlap = (radius + bigBall.radius) - distance
+                activeballs[i].x -= overlap * math.cos(angle)
+                activeballs[i].y -= overlap * math.sin(angle)
+                
+                dvx = 0 - activeballs[i].vel[0]
+                dvy = 0 - activeballs[i].vel[1]
+                dot_product = disx * dvx + disy * dvy
+                activeballs[i].vel[0] += overlap * dot_product * disx / distance**2 * COR
+                activeballs[i].vel[1] += overlap * dot_product * disy / distance**2 * COR
 
         
 def make_ball(active):
