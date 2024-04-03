@@ -5,6 +5,7 @@ import numpy as np
 from scipy.integrate import ode
 import random
 from datetime import datetime
+import math
 
 pygame.init()
 win_width = 640
@@ -26,7 +27,8 @@ gravity = -9.8
 dt = 0.05
 mass = 1
 radius = 1
-COR = 1
+#Elasticity of all objects
+COR = 0.7
 
 
 #clock
@@ -89,10 +91,10 @@ def Collision_detection(activeballs, bigball, triangle):
         #wall collision
         if (activeballs[i].x - radius) <= 0:
             #screen edge
-            activeballs[i].set_vel((-activeballs[i].vel[0],activeballs[i].vel[1]))
+            activeballs[i].set_vel(((-activeballs[i].vel[0]*COR),activeballs[i].vel[1]))
         elif (activeballs[i].x + radius) >= 640:
             #other edge
-            activeballs[i].set_vel((-activeballs[i].vel[0],activeballs[i].vel[1]))
+            activeballs[i].set_vel(((-activeballs[i].vel[0]*COR),activeballs[i].vel[1]))
             
 
         #object collision
@@ -110,24 +112,25 @@ def Collision_detection(activeballs, bigball, triangle):
                 activeballs[i].x -= overlap * math.cos(angle)
                 activeballs[i].y -= overlap * math.sin(angle)
                 
-                dvx = 0 - activeballs[i].vel[0]
-                dvy = 0 - activeballs[i].vel[1]
-                dot_product = disx * dvx + disy * dvy
-                activeballs[i].vel[0] += overlap * dot_product * disx / distance**2 * COR
-                activeballs[i].vel[1] += overlap * dot_product * disy / distance**2 * COR
+                activeballs[i].vel[0] = -COR * activeballs[i].vel[0]
+                activeballs[i].vel[1] = -COR * activeballs[i].vel[1]
 
         
-def make_ball(active):
+def make_ball(active, Total):
     x = 320 # set to random in a range
     y = 620
     pos = np.array([x,y])
     active.append(Ball(pos,mass, WHITE, radius))
+    Total.append(Ball(pos,mass, WHITE, radius))
 
 
 
 
 def main():
     activeballs = [Ball]
+    Totalballs = [Ball]
+
+
 
     
 if __name__ == '__main__':
