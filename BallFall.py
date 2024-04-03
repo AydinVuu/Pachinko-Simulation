@@ -30,6 +30,13 @@ radius = 1
 #Elasticity of all objects
 COR = 0.7
 
+#randomize for different types of balls
+# change mass constant to a gravity multiplier
+# radius multiplier as well
+# have one normal ball with default gravity and radius
+# random ball spawns use lab 6
+# when balls below line, check for x coord to assign points
+# if we goated add spin
 
 #clock
 clock = pygame.time.Clock()
