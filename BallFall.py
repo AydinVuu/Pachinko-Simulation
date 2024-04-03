@@ -100,6 +100,12 @@ def Collision_detection(activeballs, bigball, triangle):
         #object collision
         if activeballs[i].x == 1:
             #triangle collision
+            #triangle collision
+            #split triangle in two parts, left side, right side
+            #find angle of triangle, perpendicular angle
+            #use perpendicular angle to find ball contact point (x,y), since same part of ball collides every time
+            #detection bad: have array of all points on edge, if contact x < trix and contact y< triy then collide, reverse for left side
+            #collision math
             
         else:
             #ball collsions
