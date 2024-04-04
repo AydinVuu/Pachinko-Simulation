@@ -35,6 +35,12 @@ COR = 0.7
 # clock
 clock = pygame.time.Clock()
 
+def connect(points):
+    edges = []
+    for i in range(len(points) - 1):
+        edges.append([points[i], points[i + 1]])
+    edges.append([points[-1], points[0]])  # Closing the loop
+    return edges
 
 class Ball:
     def __init__(self, screen, initial_position, initial_velocity, radius=20, color=(255, 0, 0)):
