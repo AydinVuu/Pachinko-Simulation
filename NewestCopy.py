@@ -58,10 +58,10 @@ class Ball:
         k4p = self.velocity + k3v * delta_t
 
         final_velocity = self.velocity + (k1v + 2*k2v + 2*k3v + k4v) * delta_t / 6
-        final_position = (self.position[0], self.position[1] + (k1p + 2*k2p + 2*k3p + k4p) * delta_t / 6)
+        final_position = [self.position[0], self.position[1] + (k1p + 2*k2p + 2*k3p + k4p) * delta_t / 6]
 
         return final_position, final_velocity
-
+    
     def update(self, delta_t):
         self.position, self.velocity = self.rk4(delta_t)
 
@@ -116,86 +116,73 @@ class BigBall:
 
 
 def Collision_detection(activeballs, bigball, triangle):
-    for i in range(len(activeballs)):
+    for ball in activeballs:
 
-        #wall collision
-        if (activeballs[i].position[0] - radius) <= 0:
-            #screen edge
-            activeballs[i].velocity = [(-activeballs[i].velocity[0]*COR),activeballs[i].velocity[1]]
-        elif (activeballs[i].position[0] + radius) >= screen_width:
-            #other edge
-            activeballs[i].velocity = [(-activeballs[i].velocity[0]*COR),activeballs[i].velocity[1]]
-            
-        #object collision
-        
-        #if ball is on the left side of the screen
-        elif activeballs[i].position[0] <= win_width//2:
-           
-            disx = activeballs[i].position[0] - triangle.pos[0][0]
-            disy = activeballs[i].position[1] - triangle.pos[0][1]
+        # Wall collision
+        if (ball.position[0] - ball.radius) <= 0:
+            # Left wall
+            ball.position[0] = ball.radius
+            ball.velocity[0] *= -COR
+        elif (ball.position[0] + ball.radius) >= screen_width:
+            # Right wall
+            ball.position[0] = screen_width - ball.radius
+            ball.velocity[0] *= -COR
+
+        # Object collision
+        # Check if the ball is on the left side of the screen
+        elif ball.position[0] <= win_width // 2:
+            # Check collision with triangle
+            disx = ball.position[0] - triangle.pos[0][0]
+            disy = ball.position[1] - triangle.pos[0][1]
             distance = math.sqrt(disx**2 + disy**2)
 
-            #if statement for left triangle, right triangle and within radius distance of tippidy top point.
-            if activeballs[i].position[0] >= triangle.pos[0][0]: #right side
-                print("check 1")
-                for j in range(len(triangle.rightedge)):
-                    if triangle.rightedge[j][0] == (activeballs[i].position[0] + (radius * math.cos(triangle.rangle))):
-                        print("check 2")
-                        if triangle.rightedge[j][1] > (activeballs[i].position[1] + (radius * math.sin(triangle.rangle))):
-                            print("check 3")
-                            dis = triangle.leftedge[j][1] - (activeballs[i].position[1] + (radius + math.sin(triangle.rangle)))
-                            activeballs[i].position[1] += dis
-                            initial_velocity = math.sqrt(activeballs[i].velocity[0]**2 + activeballs[i].velocity[1]**2)               
-                            activeballs[i].velocity[0] = -COR * initial_velocity * math.cos(triangle.rangle)
-                            activeballs[i].velocity[1] = -COR * initial_velocity * math.sin(triangle.rangle)
-
-            elif activeballs[i].position[0] <= triangle.pos[0][0]: #left side
-                for k in range(len(triangle.leftedge)):
-                    if triangle.leftedge[k][0] == (activeballs[i].position[0] + (radius * math.cos(triangle.langle))):
-                        if triangle.leftedge[k][1] > (activeballs[i].position[1] + (radius* math.sin(triangle.langle))):
-                            dis = triangle.leftedge[k][1] - (activeballs[i].position[1] + (radius + math.sin(triangle.langle)))
-                            activeballs[i].position[1] += dis 
-                            initial_velocity = math.sqrt(activeballs[i].velocity[0]**2 + activeballs[i].velocity[1]**2)       
-                            activeballs[i].velocity[0] = -COR * initial_velocity * math.cos(triangle.langle)
-                            activeballs[i].velocity[1] = -COR * initial_velocity * math.sin(triangle.langle)
-
-            if distance < radius:
-                # tippy top of triangle, treat top as particle
+            if distance <= ball.radius:
+                # Ball has collided with triangle
                 angle = math.atan2(disy, disx)
-                overlap = radius - distance
-                activeballs[i].position[0] -= overlap * math.cos(angle)
-                activeballs[i].position[1] -= overlap * math.sin(angle)
+                overlap = ball.radius - distance
+                ball.position[0] -= overlap * math.cos(angle)
+                ball.position[1] -= overlap * math.sin(angle)
 
-                initial_velocity = math.sqrt(activeballs[i].velocity[0]**2 + activeballs[i].velocity[1]**2)
-                
-                activeballs[i].velocity[0] = -COR * initial_velocity * math.cos(angle)
-                activeballs[i].velocity[1] = -COR * initial_velocity * math.sin(angle)
-                
-            # treat top point or verticie as ball collision
-            #triangle collision
-            #probably split triange in two zones
-            #split triangle in two parts, left side, right side
-            #find angle of triangle, perpendicular angle
-            #use perpendicular angle to find ball contact point (x,y), since same part of ball collides every time
-            #detection bad: have array of all points on edge, if contact x < trix and contact y< triy then collide, reverse for left side
-            #collision math
-            
+                # Calculate new velocities
+                normal = np.array([math.cos(angle), math.sin(angle)])
+                tangent = np.array([-normal[1], normal[0]])
+
+                v1n = np.dot(np.array(ball.velocity), np.array(normal))
+                v1t = np.dot(ball.velocity, tangent)
+
+                m1 = mass  # Ball mass
+                m2 = float('inf')  # Assuming the triangle is fixed
+
+                v1n_final = (v1n * (m1 - m2) + 2 * m2 * 0) / (m1 + m2)  # Using coefficient of restitution for collision
+                v1n_final *= COR
+
+                ball.velocity = v1n_final * normal + v1t * tangent
+
         else:
-            #ball collsions
-            disx = activeballs[i].position[0] - bigball.pos[0]
-            disy = activeballs[i].position[1] - bigball.pos[1]
+            # Ball collision with big ball
+            disx = ball.position[0] - triangle.pos[0][0]
+            disy = ball.position[1] - triangle.pos[0][1]
             distance = math.sqrt(disx**2 + disy**2)
-            if distance < (radius + bigball.radius):
+            if distance < (ball.radius + bigball.radius):
                 angle = math.atan2(disy, disx)
-                overlap = (radius + bigball.radius) - distance
-                activeballs[i].position[0] -= overlap * math.cos(angle)
-                activeballs[i].position[1] -= overlap * math.sin(angle)
+                overlap = (ball.radius + bigball.radius) - distance
+                ball.position[0] -= overlap * math.cos(angle)
+                ball.position[1] -= overlap * math.sin(angle)
 
-                initial_velocity = math.sqrt(activeballs[i].velocity[0]**2 + activeballs[i].velocity[1]**2)
-                
-                activeballs[i].velocity[0] = -COR * initial_velocity * math.cos(angle)
-                activeballs[i].velocity[1] = -COR * initial_velocity * math.sin(angle)
+                # Calculate new velocities
+                normal = np.array([math.cos(angle), math.sin(angle)])
+                tangent = np.array([-normal[1], normal[0]])
 
+                v1n = np.dot(ball.velocity, normal)
+                v1t = np.dot(ball.velocity, tangent)
+
+                m1 = mass  # Ball mass
+                m2 = mass  # Assuming big ball has the same mass as the small ball
+
+                v1n_final = (v1n * (m1 - m2) + 2 * m2 * 0) / (m1 + m2)  # Using coefficient of restitution for collision
+                v1n_final *= COR
+
+                ball.velocity = v1n_final * normal + v1t * tangent
 
 def make_ball(active, Total):
     x = 320  # set to random in a range
@@ -226,8 +213,7 @@ triangle = Triangle(screen, tripoints, GREEN)
 is_ball_dropped = False
 clock = pygame.time.Clock()
 active = [ball]
-print(triangle.rightedge)
-print(triangle.leftedge)
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
