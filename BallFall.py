@@ -71,11 +71,17 @@ class Ball:
 
 class Triangle:
     def __init__(self, pos):
-        self.pos = np.array(pos)
-
+        #pos format [[x,y],[x2,y2],[x3,y3]]
+        self.pos = np.array(pos) # order will top vertice, right vertice, left vertice
+        self.rightedge = connect([pos[0],pos[1]])
+        self.leftedge = connect([pos[0],pos[2]])
+        #the angle from the center of the ball that will hit the edges of the triangle
+        self.rangle = math.atan2((pos[0][0] - pos[1][0]), -(pos[0][1] - pos[1][1]))
+        self.langle = math.atan2((pos[0][0] - pos[2][0]), -(pos[0][1] - pos[2][1]))
+        #find
     
     def draw(self):
-        pygame.draw.t(screen, self.color, self.pos, self.radius) #position needs to be a list of 3 coords [(x,y), (x2,y2), (x3,y3)]
+        pygame.draw.t(screen, self.color, self.pos, self.radius) #position needs to be a list of 3 coords [[x,y],[x2,y2],[x3,y3]]
 
 
 class bigBall:
@@ -103,11 +109,47 @@ def Collision_detection(activeballs, bigball, triangle):
             #other edge
             activeballs[i].set_vel(((-activeballs[i].vel[0]*COR),activeballs[i].vel[1]))
             
-
         #object collision
-        if activeballs[i].x == 1:
+        
+        #if ball is on the left side of the screen
+        elif activeballs[i].x <= win_width/2:
+           
+            disx = activeballs[i].x - triangle.pos[0][0]
+            disy = activeballs[i].y - triangle.pos[0][1]
+            distance = math.sqrt(disx**2 + disy**2)
+
+            #if statement for left triangle, right triangle and within radius distance of tippidy top point.
+            if activeballs[i].x >= triangle.pos[0][0]: #right side
+                for i in range(triangle.rightedge.len()):
+                    if triangle.rightedge[i][0] == (activeballs[i].x + (radius + math.cos(triangle.rangle))):
+                        if triangle.rightedge[i][1] <= (activeballs[i].y + (radius + math.sin(triangle.rangle))):
+                            initial_velocity = math.sqrt(activeballs[i].vel[0]**2 + activeballs[i].vel[1]**2)               
+                            activeballs[i].vel[0] = -COR * initial_velocity * math.cos(triangle.rangle)
+                            activeballs[i].vel[1] = -COR * initial_velocity * math.sin(triangle.rangle)
+
+            elif activeballs[i].x <= triangle.pos[0][0]: #left side
+                for i in range(triangle.leftedge.len()):
+                    if triangle.leftedge[i][0] == (activeballs[i].x + (radius + math.cos(triangle.langle))):
+                        if triangle.leftedge[i][1] <= (activeballs[i].y + (radius + math.sin(triangle.langle))):
+                            initial_velocity = math.sqrt(activeballs[i].vel[0]**2 + activeballs[i].vel[1]**2)               
+                            activeballs[i].vel[0] = -COR * initial_velocity * math.cos(triangle.rangle)
+                            activeballs[i].vel[1] = -COR * initial_velocity * math.sin(triangle.rangle)
+
+            if distance < radius:
+                # tippy top of triangle, treat top as particle
+                angle = math.atan2(disy, disx)
+                overlap = radius - distance
+                activeballs[i].x -= overlap * math.cos(angle)
+                activeballs[i].y -= overlap * math.sin(angle)
+
+                initial_velocity = math.sqrt(activeballs[i].vel[0]**2 + activeballs[i].vel[1]**2)
+                
+                activeballs[i].vel[0] = -COR * initial_velocity * math.cos(angle)
+                activeballs[i].vel[1] = -COR * initial_velocity * math.sin(angle)
+                
+            # treat top point or verticie as ball collision
             #triangle collision
-            #triangle collision
+            #probably split triange in two zones
             #split triangle in two parts, left side, right side
             #find angle of triangle, perpendicular angle
             #use perpendicular angle to find ball contact point (x,y), since same part of ball collides every time
@@ -124,10 +166,11 @@ def Collision_detection(activeballs, bigball, triangle):
                 overlap = (radius + bigBall.radius) - distance
                 activeballs[i].x -= overlap * math.cos(angle)
                 activeballs[i].y -= overlap * math.sin(angle)
-                
-                activeballs[i].vel[0] = -COR * activeballs[i].vel[0]
-                activeballs[i].vel[1] = -COR * activeballs[i].vel[1]
 
+                initial_velocity = math.sqrt(activeballs[i].vel[0]**2 + activeballs[i].vel[1]**2)
+                
+                activeballs[i].vel[0] = -COR * initial_velocity * math.cos(angle)
+                activeballs[i].vel[1] = -COR * initial_velocity * math.sin(angle)
         
 def make_ball(active, Total):
     x = 320 # set to random in a range
