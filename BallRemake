@@ -46,10 +46,10 @@ clock = pygame.time.Clock()
 
 
 class Ball:
-    def __init__(self, pos, mass, color, radius):
+    def __init__(self, screen, pos, mass, color, radius):
         self.pos = np.array(pos)
         self.vel = np.array([0,0])
-
+        self.screen = screen
         self.t = 0
 
         self.radius = radius
@@ -101,7 +101,7 @@ def connect(ends):
                      np.linspace(ends[0, 1], ends[1, 1], d1+1, dtype=np.int32)]
 
 class Triangle:
-    def __init__(self, pos, color):
+    def __init__(self, screen, pos, color):
         #pos format [[x,y],[x2,y2],[x3,y3]]
         self.pos = pos # order will top vertice, right vertice, left vertice
         self.color = color
@@ -109,26 +109,28 @@ class Triangle:
         lp = np.array([pos[0], pos[2]])
         self.rightedge = connect(rp)
         self.leftedge = connect(lp)
+        self.screen = screen
         #the angle from the center of the ball that will hit the edges of the triangle
         self.rangle = math.atan2((pos[0][0] - pos[1][0]), -(pos[0][1] - pos[1][1]))
         self.langle = math.atan2((pos[0][0] - pos[2][0]), -(pos[0][1] - pos[2][1]))
         #find
     
     def draw(self):
-        pygame.draw.polygon(screen, self.color, self.pos) #position needs to be a list of 3 coords [[x,y],[x2,y2],[x3,y3]]
+        pygame.draw.polygon(self.screen, self.color, self.pos) #position needs to be a list of 3 coords [[x,y],[x2,y2],[x3,y3]]
 
 
 class bigBall:
-    def __init__(self, pos, color, radius):
+    def __init__(self, screen, pos, color, radius):
         self.pos = np.array(pos)
         self.radius = radius
         self.color = color
+        self.screen = screen
 
     def set_pos(self, pos):
         self.pos = np.array(pos)
     
     def draw(self):
-        pygame.draw.circle(screen, self.color, (int(self.pos[0]), int(self.pos[1])), self.radius)
+        pygame.draw.circle(self.screen, self.color, (int(self.pos[0]), int(self.pos[1])), self.radius)
 
 
 
