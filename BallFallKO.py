@@ -254,19 +254,20 @@ while True:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
                 is_ball_dropped = True
-            elif event.key == pygame.K_a and not is_ball_dropped:
-                if ball.position[0] - 10 >= left_boundary:
-                    ball.position[0] -= 10
-            elif event.key == pygame.K_d and not is_ball_dropped:
-                if ball.position[0] + 10 <= right_boundary:
-                    ball.position[0] += 10
+
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_a] and not is_ball_dropped:
+        if ball.position[0] - 10 >= left_boundary:
+            ball.position[0] -= 10
+    if keys[pygame.K_d] and not is_ball_dropped:
+        if ball.position[0] + 10 <= right_boundary:
+            ball.position[0] += 10
 
     if is_ball_dropped:
         for ball in active:
             ball.update(delta_t)
-            Collision_detection(active,bigball,triangle)
-    print(ball.position[1])
-    
+            Collision_detection(active, bigball, triangle)
+
     screen.fill((255, 255, 255))
     for ball in active:
         ball.draw(screen)
