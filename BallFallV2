@@ -1,0 +1,245 @@
+import pygame
+import sys
+import numpy as np
+import math
+
+pygame.init()
+win_width = 640
+win_height = 640
+screen = pygame.display.set_mode((win_width, win_height))  # Top left corner is (0,0)
+pygame.display.set_caption('Ball Fall')
+
+# set up the colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+
+# Constants
+gravity = -9.8
+dt = 0.05
+mass = 1
+radius = 1
+# Elasticity of all objects
+COR = 0.7
+
+# randomize for different types of balls
+# change mass constant to a gravity multiplier
+# radius multiplier as well
+# have one normal ball with default gravity and radius
+# random ball spawns use lab 6
+# when balls below line, check for x coord to assign points
+# if we goated add spin
+
+# clock
+clock = pygame.time.Clock()
+
+
+class Ball:
+    def __init__(self, screen, initial_position, initial_velocity, radius=20, color=(255, 0, 0)):
+        self.screen = screen
+        self.position = list(initial_position)
+        self.velocity = initial_velocity
+        self.radius = radius
+        self.color = color
+
+    def acceleration(self):
+        return gravity
+
+    def rk4(self, delta_t):
+        k1v = self.acceleration()
+        k1p = self.velocity
+        k2v = self.acceleration()
+        k2p = self.velocity + k1v * delta_t / 2
+        k3v = self.acceleration()
+        k3p = self.velocity + k2v * delta_t / 2
+        k4v = self.acceleration()
+        k4p = self.velocity + k3v * delta_t
+
+        final_velocity = self.velocity + (k1v + 2*k2v + 2*k3v + k4v) * delta_t / 6
+        final_position = (self.position[0], self.position[1] + (k1p + 2*k2p + 2*k3p + k4p) * delta_t / 6)
+
+        return final_position, final_velocity
+
+    def update(self, delta_t):
+        self.position, self.velocity = self.rk4(delta_t)
+
+    def draw(self):
+        pygame.draw.circle(self.screen, self.color, (int(self.position[0]), int(self.position[1])), self.radius)
+
+#Code by Paul Panzer (December 7th, 2017) Array of coordinates between two points
+#URL: https://stackoverflow.com/questions/47704008/fastest-way-to-get-all-the-points-between-two-x-y-coordinates-in-python
+def connect(ends):
+    d0, d1 = np.abs(np.diff(ends, axis=0))[0]
+    if d0 > d1: 
+        return np.c_[np.linspace(ends[0, 0], ends[1, 0], d0+1, dtype=np.int32),
+                     np.round(np.linspace(ends[0, 1], ends[1, 1], d0+1))
+                     .astype(np.int32)]
+    else:
+        return np.c_[np.round(np.linspace(ends[0, 0], ends[1, 0], d1+1))
+                     .astype(np.int32),
+                     np.linspace(ends[0, 1], ends[1, 1], d1+1, dtype=np.int32)]
+
+
+class Triangle:
+    def __init__(self, screen, pos, color):
+        # pos format [[x,y],[x2,y2],[x3,y3]]
+        self.screen = screen
+        self.pos = pos  # order will top vertice, right vertice, left vertice
+        self.color = color
+        rp = np.array([pos[0], pos[1]])
+        lp = np.array([pos[0], pos[2]])
+        self.rightedge = connect(rp)
+        self.leftedge = connect(lp)
+        # the angle from the center of the ball that will hit the edges of the triangle
+        self.rangle = math.atan2((pos[0][0] - pos[1][0]), -(pos[0][1] - pos[1][1]))
+        self.langle = math.atan2((pos[0][0] - pos[2][0]), -(pos[0][1] - pos[2][1]))
+        # find
+
+    def draw(self):
+        pygame.draw.polygon(screen, self.color, self.pos)  # position needs to be a list of 3 coords [[x,y],[x2,y2],[x3,y3]]
+
+
+class BigBall:
+    def __init__(self, screen, pos, color, radius):
+        self.screen = screen
+        self.pos = np.array(pos)
+        self.radius = radius
+        self.color = color
+
+    def set_pos(self, pos):
+        self.pos = np.array(pos)
+
+    def draw(self):
+        pygame.draw.circle(screen, self.color, (int(self.pos[0]), int(self.pos[1])), self.radius)
+
+
+def Collision_detection(activeballs, bigball, triangle):
+    for i in range(activeballs.len()):
+
+        #wall collision
+        if (activeballs[i].x - radius) <= 0:
+            #screen edge
+            activeballs[i].set_vel(((-activeballs[i].vel[0]*COR),activeballs[i].vel[1]))
+        elif (activeballs[i].x + radius) >= 640:
+            #other edge
+            activeballs[i].set_vel(((-activeballs[i].vel[0]*COR),activeballs[i].vel[1]))
+            
+        #object collision
+        
+        #if ball is on the left side of the screen
+        elif activeballs[i].x <= win_width/2:
+           
+            disx = activeballs[i].x - triangle.pos[0][0]
+            disy = activeballs[i].y - triangle.pos[0][1]
+            distance = math.sqrt(disx**2 + disy**2)
+
+            #if statement for left triangle, right triangle and within radius distance of tippidy top point.
+            if activeballs[i].x >= triangle.pos[0][0]: #right side
+                for i in range(triangle.rightedge.len()):
+                    if triangle.rightedge[i][0] == (activeballs[i].x + (radius + math.cos(triangle.rangle))):
+                        if triangle.rightedge[i][1] <= (activeballs[i].y + (radius + math.sin(triangle.rangle))):
+                            initial_velocity = math.sqrt(activeballs[i].vel[0]**2 + activeballs[i].vel[1]**2)               
+                            activeballs[i].vel[0] = -COR * initial_velocity * math.cos(triangle.rangle)
+                            activeballs[i].vel[1] = -COR * initial_velocity * math.sin(triangle.rangle)
+
+            elif activeballs[i].x <= triangle.pos[0][0]: #left side
+                for i in range(triangle.leftedge.len()):
+                    if triangle.leftedge[i][0] == (activeballs[i].x + (radius + math.cos(triangle.langle))):
+                        if triangle.leftedge[i][1] <= (activeballs[i].y + (radius + math.sin(triangle.langle))):
+                            initial_velocity = math.sqrt(activeballs[i].vel[0]**2 + activeballs[i].vel[1]**2)               
+                            activeballs[i].vel[0] = -COR * initial_velocity * math.cos(triangle.rangle)
+                            activeballs[i].vel[1] = -COR * initial_velocity * math.sin(triangle.rangle)
+
+            if distance < radius:
+                # tippy top of triangle, treat top as particle
+                angle = math.atan2(disy, disx)
+                overlap = radius - distance
+                activeballs[i].x -= overlap * math.cos(angle)
+                activeballs[i].y -= overlap * math.sin(angle)
+
+                initial_velocity = math.sqrt(activeballs[i].vel[0]**2 + activeballs[i].vel[1]**2)
+                
+                activeballs[i].vel[0] = -COR * initial_velocity * math.cos(angle)
+                activeballs[i].vel[1] = -COR * initial_velocity * math.sin(angle)
+                
+            # treat top point or verticie as ball collision
+            #triangle collision
+            #probably split triange in two zones
+            #split triangle in two parts, left side, right side
+            #find angle of triangle, perpendicular angle
+            #use perpendicular angle to find ball contact point (x,y), since same part of ball collides every time
+            #detection bad: have array of all points on edge, if contact x < trix and contact y< triy then collide, reverse for left side
+            #collision math
+            
+        else:
+            #ball collsions
+            disx = activeballs[i].x - bigball.x
+            disy = activeballs[i].y - bigball.y
+            distance = math.sqrt(disx**2 + disy**2)
+            if distance < (radius + bigball.radius):
+                angle = math.atan2(disy, disx)
+                overlap = (radius + bigball.radius) - distance
+                activeballs[i].x -= overlap * math.cos(angle)
+                activeballs[i].y -= overlap * math.sin(angle)
+
+                initial_velocity = math.sqrt(activeballs[i].vel[0]**2 + activeballs[i].vel[1]**2)
+                
+                activeballs[i].vel[0] = -COR * initial_velocity * math.cos(angle)
+                activeballs[i].vel[1] = -COR * initial_velocity * math.sin(angle)
+
+
+def make_ball(active, Total):
+    x = 320  # set to random in a range
+    y = 620
+    pos = np.array([x, y])
+    active.append(Ball(pos, mass, WHITE, radius))
+    Total.append(Ball(pos, mass, WHITE, radius))
+
+
+screen_width = 800
+screen_height = 600
+gravity = 9.8
+left_boundary = 100
+right_boundary = 700
+
+pygame.init()
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption("Ball Falling")
+
+delta_t = 0.05
+initial_position = (screen_width // 2, 0)
+initial_velocity = 0
+
+ball = Ball(screen, initial_position, initial_velocity)
+bigball = BigBall(screen, [600, 300], BLUE, 40)
+tripoints = np.array([[200,260],[230,340],[170,340]])
+triangle = Triangle(screen, tripoints, GREEN)
+is_ball_dropped = False
+clock = pygame.time.Clock()
+
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                is_ball_dropped = True
+            elif event.key == pygame.K_a and not is_ball_dropped:
+                if ball.position[0] - 10 >= left_boundary:
+                    ball.position[0] -= 10
+            elif event.key == pygame.K_d and not is_ball_dropped:
+                if ball.position[0] + 10 <= right_boundary:
+                    ball.position[0] += 10
+
+    if is_ball_dropped:
+        ball.update(delta_t)
+
+    screen.fill((255, 255, 255))
+    ball.draw()
+    bigball.draw()
+    triangle.draw()
+    pygame.display.flip()
+    clock.tick(60)
