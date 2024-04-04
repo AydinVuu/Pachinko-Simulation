@@ -39,7 +39,7 @@ clock = pygame.time.Clock()
 class Ball:
     def __init__(self, screen, initial_position, initial_velocity, radius=20, color=(255, 0, 0)):
         self.screen = screen
-        self.position = list(initial_position)
+        self.position = initial_position
         self.velocity = initial_velocity
         self.radius = radius
         self.color = color
@@ -122,7 +122,7 @@ def Collision_detection(activeballs, bigball, triangle):
         if (activeballs[i].position[0] - radius) <= 0:
             #screen edge
             activeballs[i].velocity = [(-activeballs[i].velocity[0]*COR),activeballs[i].velocity[1]]
-        elif (activeballs[i].position[0] + radius) >= 640:
+        elif (activeballs[i].position[0] + radius) >= screen_width:
             #other edge
             activeballs[i].velocity = [(-activeballs[i].velocity[0]*COR),activeballs[i].velocity[1]]
             
