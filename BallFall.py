@@ -71,11 +71,17 @@ class Ball:
 
 class Triangle:
     def __init__(self, pos):
-        self.pos = np.array(pos)
-
+        #pos format [[x,y],[x2,y2],[x3,y3]]
+        self.pos = np.array(pos) # order will top vertice, right vertice, left vertice
+        self.rightedge = connect([pos[0],pos[1]])
+        self.leftedge = connect([pos[0],pos[2]])
+        #the angle from the center of the ball that will hit the edges of the triangle
+        self.rangle = math.atan2((pos[0][0] - pos[1][0]), -(pos[0][1] - pos[1][1]))
+        self.langle = math.atan2((pos[0][0] - pos[2][0]), -(pos[0][1] - pos[2][1]))
+        #find
     
     def draw(self):
-        pygame.draw.t(screen, self.color, self.pos, self.radius) #position needs to be a list of 3 coords [(x,y), (x2,y2), (x3,y3)]
+        pygame.draw.t(screen, self.color, self.pos, self.radius) #position needs to be a list of 3 coords [[x,y],[x2,y2],[x3,y3]]
 
 
 class bigBall:
