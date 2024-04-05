@@ -195,25 +195,20 @@ def Collision_detection(activeballs, bigball, triangle):
 
 
         else:
-            # Ball collision with big ball
+            #Ball collision with big ball
             disx = ball.position[0] - bigball.pos[0]
             disy = ball.position[1] - bigball.pos[1]
-
             distance = math.sqrt(disx**2 + disy**2)
 
             if distance < (ball.radius + bigball.radius):
-                angle = math.atan2(disy, disx)
-                overlap = (ball.radius + bigball.radius) - distance
-                ball.position[0] -= overlap * math.cos(angle)
-                ball.position[1] -= overlap * math.sin(angle)
+                #Ball on stationary
+                relative_velocity = ball.velocity - np.array([0, 0]) 
+                #Bounce
+                normal_vector = np.array([disx, disy]) / distance
+                dot_product = np.dot(relative_velocity, normal_vector)
+                impulse = (2 * dot_product)
+                ball.velocity -= impulse * normal_vector
                 
-                # Calculate new velocities
-                print(ball.velocity)
-                dvx = 0 - ball.velocity[0]
-                dvy = 0 - ball.velocity[1]
-                dot_product = disx * dvx + disy * dvy
-                ball.velocity[0] += overlap * dot_product * disx / distance**2 * COR
-                ball.velocity[1] += overlap * dot_product * disy / distance**2 * COR
 
 def make_ball(active, Total):
     x = 320  # set to random in a range
