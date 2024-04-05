@@ -177,17 +177,17 @@ def Collision_detection(activeballs, bigball, triangle):
                         if triangle.rightedge[j][1] < (ball.position[1] - (radius * math.sin(triangle.rangle))):
                             print("check 3")
                             dis = triangle.leftedge[j][1] - (ball.position[1] - (radius + math.sin(triangle.rangle)))
-                            ball.position[1] += dis
+                            ball.position[1] -= dis
                             initial_velocity = math.sqrt(ball.velocity[0]**2 + ball.velocity[1]**2)               
                             ball.velocity[0] = -COR * initial_velocity * math.cos(triangle.rangle)
                             ball.velocity[1] = -COR * initial_velocity * math.sin(triangle.rangle)
 
             elif ball.position[0] <= triangle.pos[0][0]: #left side
                 for k in range(len(triangle.leftedge)):
-                    if triangle.leftedge[k][0] == round(ball.position[0] - (radius * math.cos(triangle.langle))):
+                    if triangle.leftedge[k][0] == round(ball.position[0] + (radius * math.cos(triangle.langle))):
                         if triangle.leftedge[k][1] < (ball.position[1] - (radius* math.sin(triangle.langle))):
-                            dis = triangle.leftedge[k][1] - (ball.position[1] + (radius + math.sin(triangle.langle)))
-                            ball.position[1] += dis 
+                            dis = triangle.leftedge[k][1] - (ball.position[1] - (radius + math.sin(triangle.langle)))
+                            ball.position[1] -= dis 
                             initial_velocity = math.sqrt(ball.velocity[0]**2 + ball.velocity[1]**2)       
                             ball.velocity[0] = -COR * initial_velocity * math.cos(triangle.langle)
                             ball.velocity[1] = -COR * initial_velocity * math.sin(triangle.langle)
@@ -239,7 +239,7 @@ initial_velocity = [0,0]
 
 ball = Ball(initial_position, initial_velocity, radius)
 bigball = BigBall(screen, [600, 330], BLUE, 60)
-tripoints = np.array([[200,260],[250,380],[150,380]])
+tripoints = np.array([[200,250],[290,400],[110,400]])
 triangle = Triangle(screen, tripoints, GREEN)
 is_ball_dropped = False
 clock = pygame.time.Clock()
@@ -254,7 +254,6 @@ while True:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
                 is_ball_dropped = True
-
     keys = pygame.key.get_pressed()
     if keys[pygame.K_a] and not is_ball_dropped:
         if ball.position[0] - 10 >= left_boundary:
@@ -266,8 +265,9 @@ while True:
     if is_ball_dropped:
         for ball in active:
             ball.update(delta_t)
-            Collision_detection(active, bigball, triangle)
-
+            Collision_detection(active,bigball,triangle)
+    print(ball.position[1])
+    
     screen.fill((255, 255, 255))
     for ball in active:
         ball.draw(screen)
