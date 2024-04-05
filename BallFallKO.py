@@ -4,6 +4,8 @@ import numpy as np
 import math
 
 pygame.init()
+mixer.init()
+mixer.music.load('peghit.ogg')
 win_width = 640
 win_height = 640
 screen = pygame.display.set_mode((win_width, win_height))  # Top left corner is (0,0)
@@ -120,10 +122,12 @@ def Collision_detection(activeballs, bigball, triangle):
         # Wall collision
         if (ball.position[0] - ball.radius) <= 0:
             # Left wall
+            mixer.music.play()
             ball.position[0] = ball.radius
             ball.velocity[0] *= -COR
         elif (ball.position[0] + ball.radius) >= screen_width:
             # Right wall
+            mixer.music.play()
             ball.position[0] = screen_width - ball.radius
             ball.velocity[0] *= -COR
 
@@ -139,7 +143,7 @@ def Collision_detection(activeballs, bigball, triangle):
             
             
             if distance <= ball.radius:
-                
+                mixer.music.play()
                 #Ball on stationary
                 relative_velocity = ball.velocity - np.array([0, 0]) 
                 #Bounce
@@ -155,6 +159,7 @@ def Collision_detection(activeballs, bigball, triangle):
                     if triangle.rightedge[j][0] == round(ball.position[0] + (radius * math.cos(triangle.rangle))):
 
                         if triangle.rightedge[j][1] < (ball.position[1] - (radius * math.sin(triangle.rangle))) and ((ball.position[1] - (radius * math.sin(triangle.rangle))) < triangle.pos[1][1]):
+                            mixer.music.play()
                             #Ball on stationary
                             relative_velocity = ball.velocity - np.array([0, 0]) 
                             #Bounce
@@ -174,6 +179,7 @@ def Collision_detection(activeballs, bigball, triangle):
 
                         if (triangle.leftedge[k][1] < (ball.position[1] - (radius * math.sin(triangle.langle)))) and ((ball.position[1] - (radius * math.sin(triangle.langle))) < triangle.pos[2][1]):
                             print("check2")
+                            mixer.music.play()
                             #Ball on stationary
                             relative_velocity = ball.velocity - np.array([0, 0]) 
                             print(relative_velocity)
@@ -197,6 +203,7 @@ def Collision_detection(activeballs, bigball, triangle):
             distance = math.sqrt(disx**2 + disy**2)
 
             if distance < (ball.radius + bigball.radius):
+                mixer.music.play()
                 #Ball on stationary
                 relative_velocity = ball.velocity - np.array([0, 0]) 
                 #Bounce
