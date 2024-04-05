@@ -167,6 +167,7 @@ def Collision_detection(activeballs, bigball, triangle):
                             dot_product = np.dot(relative_velocity, normal_vector)
                             impulse = (2 * dot_product)
                             ball.velocity -= impulse * normal_vector
+                            ball.update(delta_t)
 
             elif ball.position[0] <= triangle.pos[0][0]: #left side
 
@@ -191,11 +192,9 @@ def Collision_detection(activeballs, bigball, triangle):
                             impulse = (2 * dot_product)
                             print(impulse)
                             ball.velocity -= impulse * normal_vector
+                            ball.update(delta_t)
+
        
-
-
-
-
         else:
             #Ball collision with big ball
             disx = ball.position[0] - bigball.pos[0]
