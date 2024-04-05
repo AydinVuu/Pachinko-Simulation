@@ -156,9 +156,9 @@ def Collision_detection(activeballs, bigball, triangle):
             elif ball.position[0] >= triangle.pos[0][0]: #right side
 
                 for j in range(len(triangle.rightedge)):
-
+                    
                     if triangle.rightedge[j][0] == round(ball.position[0] + (radius * math.cos(triangle.rangle))):
-
+                        
                         if triangle.rightedge[j][1] < (ball.position[1] - (radius * math.sin(triangle.rangle))) and ((ball.position[1] - (radius * math.sin(triangle.rangle))) < triangle.pos[1][1]):
                             mixer.music.play()
                             #Ball on stationary
@@ -168,7 +168,15 @@ def Collision_detection(activeballs, bigball, triangle):
                             dot_product = np.dot(relative_velocity, normal_vector)
                             impulse = (2 * dot_product)
                             ball.velocity -= impulse * normal_vector
-                            ball.update(delta_t)
+                            
+                            for l in range(len(triangle.rightedge)):
+                                if triangle.rightedge[l][1] == round(ball.position[1] - (radius * math.sin(triangle.rangle))):
+                                    index = round((l + j)/2)
+                                    disxr = (ball.position[0] + (radius * math.cos(triangle.rangle))) - triangle.rightedge[index][0]
+                                    disyr = (ball.position[1] - (radius * math.sin(triangle.rangle))) - triangle.rightedge[index][1]
+                                    distancer = math.sqrt(disxr**2 + disyr**2)
+                                    ball.position[0] += distancer*(-(math.cos(triangle.rangle)))
+                                    ball.position[1] += distancer*(math.sin(triangle.rangle))
 
                 disx2 = ball.position[0] - triangle.pos[1][0]
                 disy2 = ball.position[1] - triangle.pos[1][1]
@@ -200,13 +208,17 @@ def Collision_detection(activeballs, bigball, triangle):
 
                             #Bounce
                             normal_vector = np.array([-(radius * math.cos(triangle.langle)), (radius * math.sin(triangle.langle))]) / radius
-
                             dot_product = np.dot(relative_velocity, normal_vector)
-
                             impulse = (2 * dot_product)
-
                             ball.velocity -= impulse * normal_vector
-                            ball.update(delta_t)
+                            for l in range(len(triangle.leftedge)):
+                                if triangle.leftedge[l][1] == round(ball.position[1] - (radius * math.sin(triangle.langle))):
+                                    index = round((l + k)/2)
+                                    disxr = (ball.position[0] + (radius * math.cos(triangle.langle))) - triangle.leftedge[index][0]
+                                    disyr = (ball.position[1] - (radius * math.sin(triangle.langle))) - triangle.leftedge[index][1]
+                                    distancer = math.sqrt(disxr**2 + disyr**2)
+                                    ball.position[0] += distancer*(-(math.cos(triangle.langle)))
+                                    ball.position[1] += distancer*(math.sin(triangle.langle))
 
                 disx3 = ball.position[0] - triangle.pos[2][0]
                 disy3 = ball.position[1] - triangle.pos[2][1]
