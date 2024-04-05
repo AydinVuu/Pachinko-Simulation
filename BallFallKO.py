@@ -137,6 +137,7 @@ def Collision_detection(activeballs, bigball, triangle):
             distance = math.sqrt(disx**2 + disy**2)
 
             
+            
             if distance <= ball.radius:
                 
                 #Ball on stationary
@@ -146,29 +147,45 @@ def Collision_detection(activeballs, bigball, triangle):
                 dot_product = np.dot(relative_velocity, normal_vector)
                 impulse = (2 * dot_product)
                 ball.velocity -= impulse * normal_vector
-
             
-                       elif ball.position[0] >= triangle.pos[0][0]: #right side
+            elif ball.position[0] >= triangle.pos[0][0]: #right side
 
                 for j in range(len(triangle.rightedge)):
 
                     if triangle.rightedge[j][0] == round(ball.position[0] + (radius * math.cos(triangle.rangle))):
 
-                        if triangle.rightedge[j][1] < (ball.position[1] - (radius * math.sin(triangle.rangle))) and ((ball.position[1] - (radius* math.sin(triangle.langle))) < triangle.pos[2][1]):
-
-
-                            initial_velocity = math.sqrt(ball.velocity[0]**2 + ball.velocity[1]**2)               
-                            ball.velocity[0] = -COR * initial_velocity * math.cos(triangle.rangle)
-                            ball.velocity[1] = -COR * initial_velocity * math.sin(triangle.rangle)
+                        if triangle.rightedge[j][1] < (ball.position[1] - (radius * math.sin(triangle.rangle))) and ((ball.position[1] - (radius * math.sin(triangle.rangle))) < triangle.pos[1][1]):
+                            #Ball on stationary
+                            relative_velocity = ball.velocity - np.array([0, 0]) 
+                            #Bounce
+                            normal_vector = np.array([-(radius * math.cos(triangle.rangle)), (radius * math.sin(triangle.rangle))]) / radius
+                            dot_product = np.dot(relative_velocity, normal_vector)
+                            impulse = (2 * dot_product)
+                            ball.velocity -= impulse * normal_vector
 
             elif ball.position[0] <= triangle.pos[0][0]: #left side
-                for k in range(len(triangle.leftedge)):
-                    if triangle.leftedge[k][0] == round(ball.position[0] + (radius * math.cos(triangle.langle))):
-                        if (triangle.leftedge[k][1] < (ball.position[1] - (radius* math.sin(triangle.langle)))) and ((ball.position[1] - (radius* math.sin(triangle.langle))) < triangle.pos[2][1]):
 
-                            initial_velocity = math.sqrt(ball.velocity[0]**2 + ball.velocity[1]**2)       
-                            ball.velocity[0] = -COR * initial_velocity * math.cos(triangle.langle)
-                            ball.velocity[1] = -COR * initial_velocity * math.sin(triangle.langle)
+                for k in range(len(triangle.leftedge)):
+
+                    if triangle.leftedge[k][0] == round(ball.position[0] + (radius * math.cos(triangle.langle))):
+                        print(triangle.leftedge[k][1])
+                        print((ball.position[1] - (radius * math.sin(triangle.langle))))
+                        print(triangle.pos[2][1])
+
+                        if (triangle.leftedge[k][1] < (ball.position[1] - (radius * math.sin(triangle.langle)))) and ((ball.position[1] - (radius * math.sin(triangle.langle))) < triangle.pos[2][1]):
+                            print("check2")
+                            #Ball on stationary
+                            relative_velocity = ball.velocity - np.array([0, 0]) 
+                            print(relative_velocity)
+                            #Bounce
+                            normal_vector = np.array([-(radius * math.cos(triangle.langle)), (radius * math.sin(triangle.langle))]) / radius
+                            print(normal_vector)
+                            dot_product = np.dot(relative_velocity, normal_vector)
+                            print(dot_product)
+                            impulse = (2 * dot_product)
+                            print(impulse)
+                            ball.velocity -= impulse * normal_vector
+       
 
 
 
