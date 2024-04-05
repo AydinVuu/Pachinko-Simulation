@@ -121,7 +121,7 @@ class BigBall:
         pygame.draw.circle(screen, self.color, (int(self.pos[0]), int(self.pos[1])), self.radius)
 
 
-def Collision_detection(activeballs, bigball, triangle):
+def Collision_detection(activeballs, bigballs, triangles):
     for ball in activeballs:
 
         # Wall collision
@@ -138,121 +138,123 @@ def Collision_detection(activeballs, bigball, triangle):
 
         # Object collision
         # Check if the ball is on the left side of the screen
-        elif ball.position[0] <= screen_width // 2:
-            # Check collision with triangle
-            disx = ball.position[0] - triangle.pos[0][0]
-            disy = ball.position[1] - triangle.pos[0][1]
+        for triangle in triangles:
+            if ball.position[0] + radius >= triangle.pos[2][0] and ball.position[0] - radius <= triangle.pos[1][0]:
+                # Check collision with triangle
+                disx = ball.position[0] - triangle.pos[0][0]
+                disy = ball.position[1] - triangle.pos[0][1]
 
-            distance = math.sqrt(disx**2 + disy**2)
+                distance = math.sqrt(disx**2 + disy**2)
 
-            
-            
-            if distance <= ball.radius:
-                mixer.music.play()
-                #Ball on stationary
-                relative_velocity = ball.velocity - np.array([0, 0]) 
-                #Bounce
-                normal_vector = np.array([disx, disy]) / distance
-                dot_product = np.dot(relative_velocity, normal_vector)
-                impulse = (2 * dot_product)
-                ball.velocity -= impulse * normal_vector
-            
-            elif ball.position[0] >= triangle.pos[0][0]: #right side
+                
+                
+                if distance <= ball.radius:
+                    mixer.music.play()
+                    #Ball on stationary
+                    relative_velocity = ball.velocity - np.array([0, 0]) 
+                    #Bounce
+                    normal_vector = np.array([disx, disy]) / distance
+                    dot_product = np.dot(relative_velocity, normal_vector)
+                    impulse = (2 * dot_product)
+                    ball.velocity -= impulse * normal_vector
+                
+                elif ball.position[0] >= triangle.pos[0][0]: #right side
 
-                for j in range(len(triangle.rightedge)):
-                    
-                    if triangle.rightedge[j][0] == round(ball.position[0] + (radius * math.cos(triangle.rangle))):
+                    for j in range(len(triangle.rightedge)):
                         
-                        if triangle.rightedge[j][1] < (ball.position[1] - (radius * math.sin(triangle.rangle))) and ((ball.position[1] - (radius * math.sin(triangle.rangle))) < triangle.pos[1][1]):
-                            mixer.music.play()
-                            #Ball on stationary
-                            relative_velocity = ball.velocity - np.array([0, 0]) 
-                            #Bounce
-                            normal_vector = np.array([-(radius * math.cos(triangle.rangle)), (radius * math.sin(triangle.rangle))]) / radius
-                            dot_product = np.dot(relative_velocity, normal_vector)
-                            impulse = (2 * dot_product)
-                            ball.velocity -= impulse * normal_vector
+                        if triangle.rightedge[j][0] == round(ball.position[0] + (radius * math.cos(triangle.rangle))):
                             
-                            for l in range(len(triangle.rightedge)):
-                                if triangle.rightedge[l][1] == round(ball.position[1] - (radius * math.sin(triangle.rangle))):
-                                    index = round((l + j)/2)
-                                    disxr = (ball.position[0] + (radius * math.cos(triangle.rangle))) - triangle.rightedge[index][0]
-                                    disyr = (ball.position[1] - (radius * math.sin(triangle.rangle))) - triangle.rightedge[index][1]
-                                    distancer = math.sqrt(disxr**2 + disyr**2)
-                                    ball.position[0] += distancer*(-(math.cos(triangle.rangle)))
-                                    ball.position[1] += distancer*(math.sin(triangle.rangle))
+                            if triangle.rightedge[j][1] < (ball.position[1] - (radius * math.sin(triangle.rangle))) and ((ball.position[1] - (radius * math.sin(triangle.rangle))) < triangle.pos[1][1]):
+                                mixer.music.play()
+                                #Ball on stationary
+                                relative_velocity = ball.velocity - np.array([0, 0]) 
+                                #Bounce
+                                normal_vector = np.array([-(radius * math.cos(triangle.rangle)), (radius * math.sin(triangle.rangle))]) / radius
+                                dot_product = np.dot(relative_velocity, normal_vector)
+                                impulse = (2 * dot_product)
+                                ball.velocity -= impulse * normal_vector
+                                
+                                for l in range(len(triangle.rightedge)):
+                                    if triangle.rightedge[l][1] == round(ball.position[1] - (radius * math.sin(triangle.rangle))):
+                                        index = round((l + j)/2)
+                                        disxr = (ball.position[0] + (radius * math.cos(triangle.rangle))) - triangle.rightedge[index][0]
+                                        disyr = (ball.position[1] - (radius * math.sin(triangle.rangle))) - triangle.rightedge[index][1]
+                                        distancer = math.sqrt(disxr**2 + disyr**2)
+                                        ball.position[0] += distancer*(-(math.cos(triangle.rangle)))
+                                        ball.position[1] += distancer*(math.sin(triangle.rangle))
 
-                disx2 = ball.position[0] - triangle.pos[1][0]
-                disy2 = ball.position[1] - triangle.pos[1][1]
+                    disx2 = ball.position[0] - triangle.pos[1][0]
+                    disy2 = ball.position[1] - triangle.pos[1][1]
 
-                distance2 = math.sqrt(disx2**2 + disy2**2)
-                if distance2 <= ball.radius:
-                    mixer.music.play()
-                    #Ball on stationary
-                    relative_velocity = ball.velocity - np.array([0, 0]) 
-                    #Bounce
-                    normal_vector = np.array([disx2, disy2]) / distance2
-                    dot_product = np.dot(relative_velocity, normal_vector)
-                    impulse = (2 * dot_product)
-                    ball.velocity -= impulse * normal_vector
-
-
-            elif ball.position[0] <= triangle.pos[0][0]: #left side
-
-                for k in range(len(triangle.leftedge)):
-
-                    if triangle.leftedge[k][0] == round(ball.position[0] + (radius * math.cos(triangle.langle))):
+                    distance2 = math.sqrt(disx2**2 + disy2**2)
+                    if distance2 <= ball.radius:
+                        mixer.music.play()
+                        #Ball on stationary
+                        relative_velocity = ball.velocity - np.array([0, 0]) 
+                        #Bounce
+                        normal_vector = np.array([disx2, disy2]) / distance2
+                        dot_product = np.dot(relative_velocity, normal_vector)
+                        impulse = (2 * dot_product)
+                        ball.velocity -= impulse * normal_vector
 
 
-                        if (triangle.leftedge[k][1] < (ball.position[1] - (radius * math.sin(triangle.langle)))) and ((ball.position[1] - (radius * math.sin(triangle.langle))) < triangle.pos[2][1]):
+                elif ball.position[0] <= triangle.pos[0][0]: #left side
 
-                            mixer.music.play()
-                            #Ball on stationary
-                            relative_velocity = ball.velocity - np.array([0, 0]) 
+                    for k in range(len(triangle.leftedge)):
 
-                            #Bounce
-                            normal_vector = np.array([-(radius * math.cos(triangle.langle)), (radius * math.sin(triangle.langle))]) / radius
-                            dot_product = np.dot(relative_velocity, normal_vector)
-                            impulse = (2 * dot_product)
-                            ball.velocity -= impulse * normal_vector
-                            for l in range(len(triangle.leftedge)):
-                                if triangle.leftedge[l][1] == round(ball.position[1] - (radius * math.sin(triangle.langle))):
-                                    index = round((l + k)/2)
-                                    disxr = (ball.position[0] + (radius * math.cos(triangle.langle))) - triangle.leftedge[index][0]
-                                    disyr = (ball.position[1] - (radius * math.sin(triangle.langle))) - triangle.leftedge[index][1]
-                                    distancer = math.sqrt(disxr**2 + disyr**2)
-                                    ball.position[0] += distancer*(-(math.cos(triangle.langle)))
-                                    ball.position[1] += distancer*(math.sin(triangle.langle))
+                        if triangle.leftedge[k][0] == round(ball.position[0] + (radius * math.cos(triangle.langle))):
 
-                disx3 = ball.position[0] - triangle.pos[2][0]
-                disy3 = ball.position[1] - triangle.pos[2][1]
 
-                distance3 = math.sqrt(disx3**2 + disy3**2)
-                if distance3 <= ball.radius:
-                    mixer.music.play()
-                    #Ball on stationary
-                    relative_velocity = ball.velocity - np.array([0, 0]) 
-                    #Bounce
-                    normal_vector = np.array([disx3, disy3]) / distance3
-                    dot_product = np.dot(relative_velocity, normal_vector)
-                    impulse = (2 * dot_product)
-                    ball.velocity -= impulse * normal_vector
+                            if (triangle.leftedge[k][1] < (ball.position[1] - (radius * math.sin(triangle.langle)))) and ((ball.position[1] - (radius * math.sin(triangle.langle))) < triangle.pos[2][1]):
+
+                                mixer.music.play()
+                                #Ball on stationary
+                                relative_velocity = ball.velocity - np.array([0, 0]) 
+
+                                #Bounce
+                                normal_vector = np.array([-(radius * math.cos(triangle.langle)), (radius * math.sin(triangle.langle))]) / radius
+                                dot_product = np.dot(relative_velocity, normal_vector)
+                                impulse = (2 * dot_product)
+                                ball.velocity -= impulse * normal_vector
+                                for l in range(len(triangle.leftedge)):
+                                    if triangle.leftedge[l][1] == round(ball.position[1] - (radius * math.sin(triangle.langle))):
+                                        index = round((l + k)/2)
+                                        disxr = (ball.position[0] + (radius * math.cos(triangle.langle))) - triangle.leftedge[index][0]
+                                        disyr = (ball.position[1] - (radius * math.sin(triangle.langle))) - triangle.leftedge[index][1]
+                                        distancer = math.sqrt(disxr**2 + disyr**2)
+                                        ball.position[0] += distancer*(-(math.cos(triangle.langle)))
+                                        ball.position[1] += distancer*(math.sin(triangle.langle))
+
+                    disx3 = ball.position[0] - triangle.pos[2][0]
+                    disy3 = ball.position[1] - triangle.pos[2][1]
+
+                    distance3 = math.sqrt(disx3**2 + disy3**2)
+                    if distance3 <= ball.radius:
+                        mixer.music.play()
+                        #Ball on stationary
+                        relative_velocity = ball.velocity - np.array([0, 0]) 
+                        #Bounce
+                        normal_vector = np.array([disx3, disy3]) / distance3
+                        dot_product = np.dot(relative_velocity, normal_vector)
+                        impulse = (2 * dot_product)
+                        ball.velocity -= impulse * normal_vector
 
         else:
-            #Ball collision with big ball
-            disx = ball.position[0] - bigball.pos[0]
-            disy = ball.position[1] - bigball.pos[1]
-            distance = math.sqrt(disx**2 + disy**2)
+            for bigball in bigballs:
+                #Ball collision with big ball
+                disx = ball.position[0] - bigball.pos[0]
+                disy = ball.position[1] - bigball.pos[1]
+                distance = math.sqrt(disx**2 + disy**2)
 
-            if distance < (ball.radius + bigball.radius):
-                mixer.music.play()
-                #Ball on stationary
-                relative_velocity = ball.velocity - np.array([0, 0]) 
-                #Bounce
-                normal_vector = np.array([disx, disy]) / distance
-                dot_product = np.dot(relative_velocity, normal_vector)
-                impulse = (2 * dot_product)
-                ball.velocity -= impulse * normal_vector
+                if distance < (ball.radius + bigball.radius):
+                    mixer.music.play()
+                    #Ball on stationary
+                    relative_velocity = ball.velocity - np.array([0, 0]) 
+                    #Bounce
+                    normal_vector = np.array([disx, disy]) / distance
+                    dot_product = np.dot(relative_velocity, normal_vector)
+                    impulse = (2 * dot_product)
+                    ball.velocity -= impulse * normal_vector
                 
 
 def make_ball(active, Total):
@@ -282,8 +284,10 @@ initial_velocity = [0,0]
 
 ball = Ball(initial_position, initial_velocity, radius, color)
 bigball = BigBall(screen, [600, 330], big_ball_color, 60)
+bigballs = [bigball]
 tripoints = np.array([[200,250],[290,400],[110,400]])
 triangle = Triangle(screen, tripoints, triangle_color)
+triangles = [triangle]
 is_ball_dropped = False
 clock = pygame.time.Clock()
 active = [ball]
@@ -310,7 +314,7 @@ while True:
     if is_ball_dropped:
         for ball in active:
             active[0].update(delta_t)
-            Collision_detection(active,bigball,triangle)
+            Collision_detection(active,bigballs,triangles)
     
     if (ball.position[1] - radius) > screen_height + 50 :
         x_segment = min(max((ball.position[0] - left_boundary) // ((right_boundary - left_boundary) // 5), 0), 4)
