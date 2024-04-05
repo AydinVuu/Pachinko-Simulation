@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import math
 from pygame import mixer
-
+import random
 
 mixer.init()
 mixer.music.load('peghit.ogg')
@@ -311,10 +311,12 @@ while True:
     if (ball.position[1] - radius) > screen_height + 50 :
         score += 100
         Scoretext = "Score: %i" % score
-        active.remove(active[0])
-        active.append(Ball(initial_position, initial_velocity, radius, BLACK))
-        is_ball_dropped = False
         
+        new_radius = random.randint(10, 50) 
+        
+        active.remove(active[0])
+        active.append(Ball(initial_position, initial_velocity, new_radius, BLACK))
+        is_ball_dropped = False
 
     text_surface = my_font.render(Scoretext, False, (0, 0, 0))
     screen.fill((255, 255, 255))
