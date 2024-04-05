@@ -162,20 +162,13 @@ def Collision_detection(activeballs, bigball, triangle):
 
             
             elif ball.position[0] >= triangle.pos[0][0]: #right side
-                print("check 1")
+
                 for j in range(len(triangle.rightedge)):
-                    print(triangle.rightedge[j][0])
-                    print(round(ball.position[0] + (radius * math.cos(triangle.rangle))))
+
                     if triangle.rightedge[j][0] == round(ball.position[0] + (radius * math.cos(triangle.rangle))):
-                        print("check 2")
-                        print(triangle.rightedge[j][1])
-                        print((ball.position[1] + (radius * math.sin(triangle.rangle))))
-                        print((radius * math.sin(triangle.rangle)))
-                        print(radius)
-                        print(math.sin(triangle.rangle))
-                        print(ball.position[1])
-                        if triangle.rightedge[j][1] < (ball.position[1] - (radius * math.sin(triangle.rangle))):
-                            print("check 3")
+
+                        if triangle.rightedge[j][1] < (ball.position[1] - (radius * math.sin(triangle.rangle))) and ((ball.position[1] - (radius* math.sin(triangle.langle))) < triangle.position[2][1]):
+
                             dis = triangle.leftedge[j][1] - (ball.position[1] - (radius + math.sin(triangle.rangle)))
                             ball.position[1] -= dis
                             initial_velocity = math.sqrt(ball.velocity[0]**2 + ball.velocity[1]**2)               
@@ -185,12 +178,13 @@ def Collision_detection(activeballs, bigball, triangle):
             elif ball.position[0] <= triangle.pos[0][0]: #left side
                 for k in range(len(triangle.leftedge)):
                     if triangle.leftedge[k][0] == round(ball.position[0] + (radius * math.cos(triangle.langle))):
-                        if triangle.leftedge[k][1] < (ball.position[1] - (radius* math.sin(triangle.langle))):
+                        if (triangle.leftedge[k][1] < (ball.position[1] - (radius* math.sin(triangle.langle)))) and ((ball.position[1] - (radius* math.sin(triangle.langle))) < triangle.position[2][1]):
                             dis = triangle.leftedge[k][1] - (ball.position[1] - (radius + math.sin(triangle.langle)))
                             ball.position[1] -= dis 
                             initial_velocity = math.sqrt(ball.velocity[0]**2 + ball.velocity[1]**2)       
                             ball.velocity[0] = -COR * initial_velocity * math.cos(triangle.langle)
                             ball.velocity[1] = -COR * initial_velocity * math.sin(triangle.langle)
+
 
 
 
