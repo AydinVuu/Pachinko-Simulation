@@ -22,7 +22,11 @@ BLUE = (0, 0, 255)
 gravity = -9.8
 dt = 0.05
 mass = 1
-radius = 20
+radius = random.randint(10, 30)
+color = (random.randint(0, 200), random.randint(0, 200), random.randint(0, 200))
+big_ball_color = (random.randint(0, 200), random.randint(0, 200), random.randint(0, 200))
+triangle_color = (random.randint(0, 200), random.randint(0, 200), random.randint(0, 200))
+
 # Elasticity of all objects
 COR = 0.7
 
@@ -276,10 +280,10 @@ delta_t = 0.05
 initial_position = [screen_width // 2, 0]
 initial_velocity = [0,0]
 
-ball = Ball(initial_position, initial_velocity, radius, BLACK)
-bigball = BigBall(screen, [600, 330], BLUE, 60)
+ball = Ball(initial_position, initial_velocity, radius, color)
+bigball = BigBall(screen, [600, 330], big_ball_color, 60)
 tripoints = np.array([[200,250],[290,400],[110,400]])
-triangle = Triangle(screen, tripoints, GREEN)
+triangle = Triangle(screen, tripoints, triangle_color)
 is_ball_dropped = False
 clock = pygame.time.Clock()
 active = [ball]
@@ -297,10 +301,10 @@ while True:
                 is_ball_dropped = True
     keys = pygame.key.get_pressed()
     if keys[pygame.K_a] and not is_ball_dropped:
-        if active[0].position[0] - 10 >= left_boundary:
+        if active[0].position[0] - 3 >= left_boundary:
             active[0].position[0] -= 3
     if keys[pygame.K_d] and not is_ball_dropped:
-        if active[0].position[0] + 10 <= right_boundary:
+        if active[0].position[0] + 3 <= right_boundary:
             active[0].position[0] += 3
 
     if is_ball_dropped:
@@ -321,8 +325,10 @@ while True:
 
         # Reset ball parameters and set is_ball_dropped to False
         radius = random.randint(10, 30)
+        color = (random.randint(0, 200), random.randint(0, 200), random.randint(0, 200))
+
         active.remove(active[0])
-        active.append(Ball(initial_position, initial_velocity, radius, BLACK))
+        active.append(Ball(initial_position, initial_velocity, radius, color))
         is_ball_dropped = False
 
     text_surface = my_font.render(Scoretext, False, (0, 0, 0))
