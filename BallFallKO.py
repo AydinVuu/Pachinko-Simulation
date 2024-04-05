@@ -169,6 +169,21 @@ def Collision_detection(activeballs, bigball, triangle):
                             ball.velocity -= impulse * normal_vector
                             ball.update(delta_t)
 
+                disx2 = ball.position[0] - triangle.pos[1][0]
+                disy2 = ball.position[1] - triangle.pos[1][1]
+
+                distance2 = math.sqrt(disx2**2 + disy2**2)
+                if distance2 <= ball.radius:
+                    mixer.music.play()
+                    #Ball on stationary
+                    relative_velocity = ball.velocity - np.array([0, 0]) 
+                    #Bounce
+                    normal_vector = np.array([disx2, disy2]) / distance2
+                    dot_product = np.dot(relative_velocity, normal_vector)
+                    impulse = (2 * dot_product)
+                    ball.velocity -= impulse * normal_vector
+
+
             elif ball.position[0] <= triangle.pos[0][0]: #left side
 
                 for k in range(len(triangle.leftedge)):
@@ -194,7 +209,20 @@ def Collision_detection(activeballs, bigball, triangle):
                             ball.velocity -= impulse * normal_vector
                             ball.update(delta_t)
 
-       
+                disx3 = ball.position[0] - triangle.pos[2][0]
+                disy3 = ball.position[1] - triangle.pos[2][1]
+
+                distance3 = math.sqrt(disx2**2 + disy2**2)
+                if distance3 <= ball.radius:
+                    mixer.music.play()
+                    #Ball on stationary
+                    relative_velocity = ball.velocity - np.array([0, 0]) 
+                    #Bounce
+                    normal_vector = np.array([disx3, disy3]) / distance3
+                    dot_product = np.dot(relative_velocity, normal_vector)
+                    impulse = (2 * dot_product)
+                    ball.velocity -= impulse * normal_vector
+
         else:
             #Ball collision with big ball
             disx = ball.position[0] - bigball.pos[0]
