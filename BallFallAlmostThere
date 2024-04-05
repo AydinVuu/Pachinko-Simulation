@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import math
 from pygame import mixer
-
+import random
 
 mixer.init()
 mixer.music.load('peghit.ogg')
@@ -22,7 +22,7 @@ BLUE = (0, 0, 255)
 gravity = -9.8
 dt = 0.05
 mass = 1
-radius = 50
+radius = 20
 # Elasticity of all objects
 COR = 0.7
 
@@ -309,12 +309,21 @@ while True:
             Collision_detection(active,bigball,triangle)
     
     if (ball.position[1] - radius) > screen_height + 50 :
-        score += 100
+        x_segment = min(max((ball.position[0] - left_boundary) // ((right_boundary - left_boundary) // 5), 0), 4)
+        if x_segment == 2:  
+            score += 300
+        elif x_segment == 1 or x_segment == 3: 
+            score += 200
+        else:  
+            score += 100
+
         Scoretext = "Score: %i" % score
+
+        # Reset ball parameters and set is_ball_dropped to False
+        radius = random.randint(10, 30)
         active.remove(active[0])
         active.append(Ball(initial_position, initial_velocity, radius, BLACK))
         is_ball_dropped = False
-        
 
     text_surface = my_font.render(Scoretext, False, (0, 0, 0))
     screen.fill((255, 255, 255))
