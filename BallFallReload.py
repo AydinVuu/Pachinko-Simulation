@@ -190,23 +190,21 @@ def Collision_detection(activeballs, bigball, triangle):
                 for k in range(len(triangle.leftedge)):
 
                     if triangle.leftedge[k][0] == round(ball.position[0] + (radius * math.cos(triangle.langle))):
-                        print(triangle.leftedge[k][1])
-                        print((ball.position[1] - (radius * math.sin(triangle.langle))))
-                        print(triangle.pos[2][1])
+
 
                         if (triangle.leftedge[k][1] < (ball.position[1] - (radius * math.sin(triangle.langle)))) and ((ball.position[1] - (radius * math.sin(triangle.langle))) < triangle.pos[2][1]):
-                            print("check2")
+
                             mixer.music.play()
                             #Ball on stationary
                             relative_velocity = ball.velocity - np.array([0, 0]) 
-                            print(relative_velocity)
+
                             #Bounce
                             normal_vector = np.array([-(radius * math.cos(triangle.langle)), (radius * math.sin(triangle.langle))]) / radius
-                            print(normal_vector)
+
                             dot_product = np.dot(relative_velocity, normal_vector)
-                            print(dot_product)
+
                             impulse = (2 * dot_product)
-                            print(impulse)
+
                             ball.velocity -= impulse * normal_vector
                             ball.update(delta_t)
 
@@ -273,7 +271,7 @@ triangle = Triangle(screen, tripoints, GREEN)
 is_ball_dropped = False
 clock = pygame.time.Clock()
 active = [ball]
-print(triangle.langle)
+
 score = 0
 
 while True:
@@ -299,15 +297,14 @@ while True:
             Collision_detection(active,bigball,triangle)
     
     if (ball.position[1] - radius) > screen_height + 50 :
-        print("p")
         score += 100
         Scoretext = "Score: %i" % score
         ball.position = [screen_width//2, 0]
+        ball.velocity = initial_velocity
         is_ball_dropped = False
         
 
     text_surface = my_font.render(Scoretext, False, (0, 0, 0))
-
     screen.fill((255, 255, 255))
     screen.blit(text_surface, (0,0))
     for ball in active:
