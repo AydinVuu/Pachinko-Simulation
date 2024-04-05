@@ -212,7 +212,7 @@ def Collision_detection(activeballs, bigball, triangle):
                 disx3 = ball.position[0] - triangle.pos[2][0]
                 disy3 = ball.position[1] - triangle.pos[2][1]
 
-                distance3 = math.sqrt(disx2**2 + disy2**2)
+                distance3 = math.sqrt(disx3**2 + disy3**2)
                 if distance3 <= ball.radius:
                     mixer.music.play()
                     #Ball on stationary
