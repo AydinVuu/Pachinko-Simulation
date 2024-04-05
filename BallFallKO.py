@@ -137,28 +137,15 @@ def Collision_detection(activeballs, bigball, triangle):
             distance = math.sqrt(disx**2 + disy**2)
 
             
-            
             if distance <= ball.radius:
-                # Ball has collided with triangle
-                angle = math.atan2(disy, disx)
-                overlap = ball.radius - distance
-                ball.position[0] -= overlap * math.cos(angle)
-                ball.position[1] -= overlap * math.sin(angle)
                 
-                # Calculate new velocities
-                normal = np.array([math.cos(angle), math.sin(angle)])
-                tangent = np.array([-normal[1], normal[0]])
-
-                v1n = np.dot(np.array(ball.velocity), np.array(normal))
-                v1t = np.dot(ball.velocity, tangent)
-
-                m1 = mass  # Ball mass
-                m2 = float('inf')  # Assuming the triangle is fixed
-
-                v1n_final = (v1n * (m1 - m2) + 2 * m2 * 0) / (m1 + m2)  # Using coefficient of restitution for collision
-                v1n_final *= COR
-
-                ball.velocity = v1n_final * normal + v1t * tangent
+                #Ball on stationary
+                relative_velocity = ball.velocity - np.array([0, 0]) 
+                #Bounce
+                normal_vector = np.array([disx, disy]) / distance
+                dot_product = np.dot(relative_velocity, normal_vector)
+                impulse = (2 * dot_product)
+                ball.velocity -= impulse * normal_vector
 
             
             elif ball.position[0] >= triangle.pos[0][0]: #right side
