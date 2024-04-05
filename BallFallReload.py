@@ -297,22 +297,22 @@ while True:
                 is_ball_dropped = True
     keys = pygame.key.get_pressed()
     if keys[pygame.K_a] and not is_ball_dropped:
-        if ball.position[0] - 10 >= left_boundary:
-            ball.position[0] -= 3
+        if active[0].position[0] - 10 >= left_boundary:
+            active[0].position[0] -= 3
     if keys[pygame.K_d] and not is_ball_dropped:
-        if ball.position[0] + 10 <= right_boundary:
-            ball.position[0] += 3
+        if active[0].position[0] + 10 <= right_boundary:
+            active[0].position[0] += 3
 
     if is_ball_dropped:
         for ball in active:
-            ball.update(delta_t)
+            active[0].update(delta_t)
             Collision_detection(active,bigball,triangle)
     
     if (ball.position[1] - radius) > screen_height + 50 :
         score += 100
         Scoretext = "Score: %i" % score
-        ball.position = [screen_width//2, 0]
-        ball.velocity = initial_velocity
+        active.remove(active[0])
+        active.append(Ball(initial_position, initial_velocity, radius, BLACK))
         is_ball_dropped = False
         
 
@@ -320,7 +320,7 @@ while True:
     screen.fill((255, 255, 255))
     screen.blit(text_surface, (0,0))
     for ball in active:
-        ball.draw(screen)
+        active[0].draw(screen)
     bigball.draw()
     triangle.draw()
     pygame.display.flip()
