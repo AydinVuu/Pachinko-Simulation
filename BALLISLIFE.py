@@ -99,8 +99,10 @@ class Triangle:
         self.rightedge = connect(rp)
         self.leftedge = connect(lp)
         # the angle from the center of the ball that will hit the edges of the triangle
-        self.langle = math.atan2((pos[0][0] - pos[1][0]), -(pos[0][1] - pos[1][1]))
-        self.rangle = math.atan2(-(pos[0][0] - pos[2][0]), (pos[0][1] - pos[2][1]))
+        #(pos[0][1] - pos[2][1])
+        #
+        self.langle = math.atan2(-(pos[0][0] - pos[2][0]),-(pos[0][1] - pos[2][1]))
+        self.rangle = math.atan2((pos[0][0] - pos[1][0]), (pos[0][1] - pos[1][1]))
         # find
 
     def draw(self):
@@ -211,7 +213,8 @@ def Collision_detection(activeballs, bigballs, triangles):
                                 #Ball on stationary
                                 relative_velocity = ball.velocity - np.array([0, 0]) 
 
-                                #Bounce
+                                #Bounce -(radius * math.cos(triangle.langle))
+                                #(radius * math.sin(triangle.langle))
                                 normal_vector = np.array([-(radius * math.cos(triangle.langle)), (radius * math.sin(triangle.langle))]) / radius
                                 dot_product = np.dot(relative_velocity, normal_vector)
                                 impulse = (2 * dot_product)
@@ -256,14 +259,6 @@ def Collision_detection(activeballs, bigballs, triangles):
                     impulse = (2 * dot_product)
                     ball.velocity -= impulse * normal_vector
                 
-
-def make_ball(active, Total):
-    x = 320  # set to random in a range
-    y = 620
-    pos = np.array([x, y])
-    active.append(Ball(pos, mass, WHITE, radius))
-    Total.append(Ball(pos, mass, WHITE, radius))
-
 
 screen_width = 1200
 screen_height = 700
