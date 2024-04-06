@@ -277,6 +277,7 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Ball Falling")
 
 my_font = pygame.font.SysFont('Comic Sans MS', 30)
+my_fontScore = pygame.font.SysFont('Comic Sans MS', 15)
 
 delta_t = 0.05
 initial_position = [screen_width // 2, 0]
@@ -346,8 +347,18 @@ while True:
         is_ball_dropped = False
 
     text_surface = my_font.render(Scoretext, False, (0, 0, 0))
+    point100 = my_fontScore.render("100", False, (0, 0, 0))
+    point200 = my_fontScore.render("200", False, (0, 0, 0))
+    point300 = my_fontScore.render("300", False, (0, 0, 0))
+
+    segment = screen_width//5
     screen.fill((255, 255, 255))
     screen.blit(text_surface, (0,0))
+    screen.blit(point100, (segment/2,screen_height-45))
+    screen.blit(point200, (segment*3/2,screen_height-45))
+    screen.blit(point300, (segment*5/2,screen_height-45))
+    screen.blit(point200, (segment*7/2,screen_height-45))
+    screen.blit(point100, (segment*9/2,screen_height-45))
 
     for ball in active:
         active[0].draw(screen)
