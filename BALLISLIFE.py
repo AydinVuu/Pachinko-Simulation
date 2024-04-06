@@ -296,6 +296,11 @@ clock = pygame.time.Clock()
 active = [ball]
 
 score = 0
+#Print controls to the console
+print("Controls:")
+print("A - Move left")
+print("D - Move right")
+print("R - Start the game (drop the ball)")
 
 while True:
     Scoretext = "Score: %i" % score
